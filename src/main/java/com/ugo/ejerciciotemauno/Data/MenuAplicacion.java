@@ -41,7 +41,7 @@ public class MenuAplicacion {
 		System.out.println("2 - Ciudad por nombre");
 		System.out.println("3 - Ejercicio 3");
 		System.out.println("4 - Serializar");
-		System.out.println("5 - Ejercicio 5");
+		System.out.println("5 - Deserializaar");
 		System.out.println("6 - Personaje de Marvel");
 		System.out.println("7 - Exit");
 
