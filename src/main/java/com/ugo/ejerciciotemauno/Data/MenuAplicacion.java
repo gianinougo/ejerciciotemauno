@@ -94,6 +94,8 @@ public class MenuAplicacion {
 
 	private void DeserializarDatos() throws FileNotFoundException {
 
+
+		//JSON
 		Gson gson = new Gson();
 
 		try (Reader reader = new FileReader("ubicaciones.json")) {
@@ -108,6 +110,8 @@ public class MenuAplicacion {
 		System.out.println("---------------------------");
 		System.out.println("---------------------------");
 
+
+		//XML
 		try (Reader reader2 = new FileReader("nombreCiudad.json")) {
 
 			ObjectMapper mapper = new ObjectMapper();
@@ -131,7 +135,7 @@ public class MenuAplicacion {
 
 
 	private void SerializarDatos() {
-		// Guardar JSon
+		// Guardar JSON
 
 		if (jsonStringaux != null) {
 			try {
@@ -151,6 +155,8 @@ public class MenuAplicacion {
 			System.out.println("No hay datos");
 		}
 
+
+		// Guardar XML
 		if (jsonString2 != null) {
 			try {
 				PrintWriter pw = new PrintWriter("nombreCiudad.json");
