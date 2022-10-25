@@ -2,14 +2,20 @@ package com.ugo.ejerciciotemauno.Data;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Reader;
+
 public class Coord {
-	
+
 	@SerializedName("Nombre")
 	String nameString;
 	@SerializedName("Temperatura")
 	float temperatura;
 	@SerializedName("Humedad")
 	float humedadactual;
+
+	public Coord(){
+
+	}
 	
 	public Coord(String nameString, float temperatura, float humedadactual) {
 		super();
@@ -48,8 +54,6 @@ public class Coord {
 				" Temperatura " + temperatura + ", " +
 				" Humedad actual " + humedadactual;
 	}
-
-
 
 
 }

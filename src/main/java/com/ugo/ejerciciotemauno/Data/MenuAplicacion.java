@@ -2,16 +2,18 @@ package com.ugo.ejerciciotemauno.Data;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,9 +24,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import static java.lang.System.in;
+
 public class MenuAplicacion {
 
-	Scanner sc = new Scanner(System.in);
+	Scanner sc = new Scanner(in);
 	String jsonStringaux;
 	String jsonString2;
 
@@ -41,7 +48,7 @@ public class MenuAplicacion {
 	}
 
 
-	public void Ejecutar() throws ParserConfigurationException, SAXException {
+	public void Ejecutar() throws ParserConfigurationException, SAXException, FileNotFoundException {
 
 		int option;
 
@@ -85,7 +92,7 @@ public class MenuAplicacion {
 	}
 
 
-	private void DeserializarDatos() {
+	private void DeserializarDatos() throws FileNotFoundException {
 
 		Gson gson = new Gson();
 
@@ -93,6 +100,28 @@ public class MenuAplicacion {
 
 			Coord coord = gson.fromJson(reader, Coord.class);
 			System.out.println(coord);
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		System.out.println("---------------------------");
+		System.out.println("---------------------------");
+
+		try (Reader reader2 = new FileReader("nombreCiudad.json")) {
+
+			ObjectMapper mapper = new ObjectMapper();
+			Coord[] data = mapper.readValue(reader2, Coord[].class);
+
+
+			for(Coord std : data) {
+				System.out.println("Nombre: "+std.nameString);
+				System.out.println("Temperatura: "+std.temperatura);
+				System.out.println("Humedad actual: "+std.humedadactual);
+
+			}
+
+
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -199,6 +228,9 @@ public class MenuAplicacion {
 
 	private void CidudadNombre() throws ParserConfigurationException, SAXException {
 
+		List<Coord> coordList = new ArrayList<Coord>();
+
+
 		String nameCityString;
 
 		try {
@@ -206,7 +238,7 @@ public class MenuAplicacion {
 			System.out.print("Enter an City: ");
 			nameCityString = sc.next();
 
-			String url2 = "https://api.openweathermap.org/data/2.5/weather?q="+ nameCityString +"&mode=xml&appid=c493f3a45248ed9d8cb1fe7997858cff";
+			String url2 = "https://api.openweathermap.org/data/2.5/weather?q=" + nameCityString + "&mode=xml&appid=c493f3a45248ed9d8cb1fe7997858cff";
 
 			DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
 			f.setNamespaceAware(false);
@@ -222,30 +254,45 @@ public class MenuAplicacion {
 
 			System.out.println("----------------------------");
 
+			String name1 = null;
 			for (int i = 0; i < nList.getLength(); i++) {
 				Node nodo = nList.item(i);
-				if (nodo.getNodeType() == Node.ELEMENT_NODE){
+				if (nodo.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nodo;
 					System.out.println("Ciudad: " + eElement.getAttribute("name"));
-
+					name1 = eElement.getAttribute("name");
 				}
 			}
+			float temp1 = 0;
 			for (int i = 0; i < nList2.getLength(); i++) {
 				Node nodo2 = nList2.item(i);
-				if (nodo2.getNodeType() == Node.ELEMENT_NODE){
-					Element eElement = (Element) nodo2;
-					System.out.println("temperature: " + eElement.getAttribute("value"));
-
+				if (nodo2.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement2 = (Element) nodo2;
+					System.out.println("temperature: " + eElement2.getAttribute("value"));
+					temp1 = Float.parseFloat(eElement2.getAttribute("value"));
 				}
 			}
+			float humidity1 = 0;
 			for (int i = 0; i < nList3.getLength(); i++) {
 				Node nodo3 = nList3.item(i);
-				if (nodo3.getNodeType() == Node.ELEMENT_NODE){
-					Element eElement = (Element) nodo3;
-					System.out.println("humidity : " + eElement.getAttribute("value") + eElement.getAttribute(("unit")));
+				if (nodo3.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement3 = (Element) nodo3;
+					System.out.println("humidity : " + eElement3.getAttribute("value") + eElement3.getAttribute(("unit")));
+					humidity1 = Float.parseFloat(eElement3.getAttribute("value"));
 
 				}
 			}
+			coordList.add(new Coord(name1, temp1, humidity1));
+
+			ArrayList<String> myList = new ArrayList<String>();
+			myList.add(coordList.toString());
+
+			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+			String jsonXml = ow.writeValueAsString(coordList);
+
+
+			System.out.println(jsonXml);
+			jsonString2 = jsonXml;
 
 
 		}
@@ -260,8 +307,6 @@ public class MenuAplicacion {
 
 		float lat;
 		float lon;
-
-
 
 		try {
 
@@ -289,8 +334,8 @@ public class MenuAplicacion {
 				throw new RuntimeException("HttpResponseCode: " + responseCode);
 			} else {
 
-				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(),Charset.forName("UTF-8")));
-				String readAPIResponse = " ";
+				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
+				String readAPIResponse;
 				StringBuilder jsonString = new StringBuilder();
 
 				while((readAPIResponse = br.readLine()) != null){
@@ -312,7 +357,7 @@ public class MenuAplicacion {
 
 				Coord c = new Coord(name, temp, humidity);
 
-				c.nameString = (String) name;
+				c.nameString = name;
 				c.temperatura = temp;
 				c.humedadactual = humidity;
 
