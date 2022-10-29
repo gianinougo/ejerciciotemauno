@@ -1,8 +1,12 @@
 package com.ugo.ejerciciotemauno.Data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Reader;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 
 public class Coord {
 
@@ -12,6 +16,9 @@ public class Coord {
 	float temperatura;
 	@SerializedName("Humedad")
 	float humedadactual;
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@SerializedName("Fecha")
+	Date fecha;
 
 	public Coord(){
 
@@ -22,7 +29,11 @@ public class Coord {
 		this.nameString = nameString;
 		this.temperatura = temperatura;
 		this.humedadactual = humedadactual;
+		//solo la fecha sin la hora
+		this.fecha = new Date();
+		//this.fecha = Date.from(LocalDate.now().atStartOfDay().toInstant(java.time.ZoneOffset.UTC));
 	}
+
 
 	public String getNameString() {
 		return nameString;
@@ -50,9 +61,10 @@ public class Coord {
 
 	@Override
 	public String toString() {
-		return "Nombre " + nameString + ", " +
-				" Temperatura " + temperatura + ", " +
-				" Humedad actual " + humedadactual;
+		return "Nombre: " + nameString + ", " +
+				" Temperatura: " + temperatura + ", " +
+				" Humedad actual: " + humedadactual + ", " +
+				" Fecha: " + fecha;
 	}
 
 

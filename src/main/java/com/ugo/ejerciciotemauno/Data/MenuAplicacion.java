@@ -5,15 +5,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
+import com.opencsv.exceptions.CsvException;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.json.XML;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,6 +29,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+
 
 import static java.lang.System.in;
 
@@ -48,7 +55,7 @@ public class MenuAplicacion {
 	}
 
 
-	public void Ejecutar() throws ParserConfigurationException, SAXException, FileNotFoundException {
+	public void Ejecutar() throws ParserConfigurationException, SAXException, IOException, CsvException {
 
 		int option;
 
@@ -68,7 +75,7 @@ public class MenuAplicacion {
 					CidudadNombre();
 					break;
 				case 3:
-
+					AccederCSV();
 					break;
 				case 4:
 					SerializarDatos();
@@ -91,6 +98,39 @@ public class MenuAplicacion {
 		} while(option != 7);
 	}
 
+	private void AccederCSV() throws IOException, CsvException {
+
+		//Solicita un rango de fechas y obtén la evolución de la temperatura en cada uno de los días del rango.
+		// Debes saber leer y filtrar los datos que te interesan del fichero.
+
+
+		System.out.println("Introduce la fecha inicial (dd-mm-aaaa):");
+		DateTimeFormatter  dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		LocalDate fechaInicial = LocalDate.parse(sc.next(), dtf);
+		System.out.println("Introduce la fecha final (dd-mm-aaaa) :");
+		LocalDate fechaFinal = LocalDate.parse(sc.next(), dtf);
+
+		String fechaInicialString = String.valueOf(fechaInicial);
+		String fechafinalString = String.valueOf(fechaInicial);
+
+		String nombreCSV = "datos.csv";
+		CSVReader reader = new CSVReader(new FileReader(nombreCSV));
+		List<String[]> data = reader.readAll();
+		List<String[]> datosFiltrados = new ArrayList<>();
+
+		for (String[] line : data) {
+			if (line[3].contains(fechaInicialString) && line[5].contains(fechafinalString)) {
+                datosFiltrados.add(line);
+				System.out.println("Temperatura: " + line[6]);
+            }
+        }
+
+
+		reader.close();
+
+
+	}
+
 
 	private void DeserializarDatos() throws FileNotFoundException {
 
@@ -100,8 +140,10 @@ public class MenuAplicacion {
 
 		try (Reader reader = new FileReader("ubicaciones.json")) {
 
-			Coord coord = gson.fromJson(reader, Coord.class);
-			System.out.println(coord);
+			Coord[] coord = gson.fromJson(reader, Coord[].class);
+			for (Coord c : coord) {
+				 System.out.println(c.toString());
+			}
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -119,12 +161,9 @@ public class MenuAplicacion {
 
 
 			for(Coord std : data) {
-				System.out.println("Nombre: "+std.nameString);
-				System.out.println("Temperatura: "+std.temperatura);
-				System.out.println("Humedad actual: "+std.humedadactual);
+				System.out.println(std);
 
 			}
-
 
 
 		} catch (IOException e) {
@@ -164,7 +203,6 @@ public class MenuAplicacion {
 				pw.flush();
 				pw.close();
 				System.out.println("Archivo creado");
-
 
 
 			} catch (Exception e) {
@@ -221,6 +259,15 @@ public class MenuAplicacion {
 				// Pintar la información en consola
 
 				System.out.println(informationString);
+
+				JSONObject jsonObject  = new JSONObject(informationString.toString());
+
+				System.out.println("---------------------------");
+
+				Gson  gson = new GsonBuilder().setPrettyPrinting().create();
+				String jsonString = gson.toJson(jsonObject);
+				System.out.println(jsonString);
+
 
 
 			}
@@ -289,11 +336,12 @@ public class MenuAplicacion {
 				}
 			}
 			coordList.add(new Coord(name1, temp1, humidity1));
+			SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm");
 
 			ArrayList<String> myList = new ArrayList<String>();
 			myList.add(coordList.toString());
 
-			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+			ObjectWriter ow = new ObjectMapper().setDateFormat(df).writer().withDefaultPrettyPrinter();
 			String jsonXml = ow.writeValueAsString(coordList);
 
 
@@ -350,32 +398,28 @@ public class MenuAplicacion {
 
 
 				JSONObject jsonObject  = new JSONObject(jsonString.toString());
+				JSONObject main = jsonObject.getJSONObject("main");
 
 				String name = (String) jsonObject.get("name");
-
-				JSONObject main = jsonObject.getJSONObject("main");
 				float temp = (float) main.getDouble("temp");
 				float humidity = (float) main.getDouble("humidity");
 
 
-				//System.out.println(jsonString);
+				System.out.println(jsonString);
 				System.out.println("---------------------------");
 
-				Coord c = new Coord(name, temp, humidity);
+				List<Coord> coordList = new ArrayList<>();
 
-				c.nameString = name;
-				c.temperatura = temp;
-				c.humedadactual = humidity;
+				coordList.add(new Coord(name, temp, humidity));
 
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				String json = gson.toJson(c);
+				Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").setPrettyPrinting().create();
+				String json = gson.toJson(coordList);
 
 				System.out.println(json);
 
 				jsonStringaux = json;
 
-
-
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

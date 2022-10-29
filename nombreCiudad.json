@@ -1,5 +1,6 @@
 [ {
-  "nameString" : "Paris",
-  "temperatura" : 291.05,
-  "humedadactual" : 78.0
+  "nameString" : "Madrid",
+  "temperatura" : 294.96,
+  "humedadactual" : 40.0,
+  "fecha" : "2022-10-29"
 } ]

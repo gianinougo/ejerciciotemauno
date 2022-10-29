@@ -1,5 +1,8 @@
-{
-  "Nombre": "Damaturu",
-  "Temperatura": 308.41,
-  "Humedad": 17.0
-}
+[
+  {
+    "Nombre": "Iraq",
+    "Temperatura": 302.1,
+    "Humedad": 17.0,
+    "Fecha": "2022-10-29"
+  }
+]
