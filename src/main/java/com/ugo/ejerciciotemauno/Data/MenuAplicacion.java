@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -31,7 +30,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 
 
 import static java.lang.System.in;
@@ -110,8 +108,18 @@ public class MenuAplicacion {
 		System.out.println("Introduce la fecha final (dd-mm-aaaa) :");
 		LocalDate fechaFinal = LocalDate.parse(sc.next(), dtf);
 
+		//si la fecha esta mal pedirla otra vez
+
+		while(fechaInicial.isAfter(fechaFinal)){
+			System.out.println("Introduce la fecha inicial (dd-mm-aaaa):");
+            fechaInicial = LocalDate.parse(sc.next(), dtf);
+            System.out.println("Introduce la fecha final (dd-mm-aaaa) :");
+            fechaFinal = LocalDate.parse(sc.next(), dtf);
+        }
+
+
 		String fechaInicialString = String.valueOf(fechaInicial);
-		String fechafinalString = String.valueOf(fechaInicial);
+		String fechafinalString = String.valueOf(fechaFinal);
 
 		String nombreCSV = "datos.csv";
 		CSVReader reader = new CSVReader(new FileReader(nombreCSV));
