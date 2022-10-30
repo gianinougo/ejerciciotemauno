@@ -40,6 +40,9 @@ public class MenuAplicacion {
 	String jsonStringaux;
 	String jsonString2;
 
+	List<Ciudad> coordenadasLista = new ArrayList<>();
+	List<Ciudad> ciudadList = new ArrayList<>();
+
 
 	public void MenuText() {
 		System.out.println("1 - Ciudad por lat y Long");
@@ -87,7 +90,6 @@ public class MenuAplicacion {
 				case 7:
 					System.out.println("Exit");
 					break;
-
 				default:
 					System.out.println("Invalid Option");
 					break;
@@ -117,7 +119,6 @@ public class MenuAplicacion {
             fechaFinal = LocalDate.parse(sc.next(), dtf);
         }
 
-
 		String fechaInicialString = String.valueOf(fechaInicial);
 		String fechafinalString = String.valueOf(fechaFinal);
 
@@ -133,23 +134,19 @@ public class MenuAplicacion {
             }
         }
 
-
 		reader.close();
-
-
 	}
 
 
 	private void DeserializarDatos() throws FileNotFoundException {
-
 
 		//JSON
 		Gson gson = new Gson();
 
 		try (Reader reader = new FileReader("ubicaciones.json")) {
 
-			Coord[] coord = gson.fromJson(reader, Coord[].class);
-			for (Coord c : coord) {
+			Ciudad[] ciudad = gson.fromJson(reader, Ciudad[].class);
+			for (Ciudad c : ciudad) {
 				 System.out.println(c.toString());
 			}
 
@@ -165,10 +162,10 @@ public class MenuAplicacion {
 		try (Reader reader2 = new FileReader("nombreCiudad.json")) {
 
 			ObjectMapper mapper = new ObjectMapper();
-			Coord[] data = mapper.readValue(reader2, Coord[].class);
+			Ciudad[] data = mapper.readValue(reader2, Ciudad[].class);
 
 
-			for(Coord std : data) {
+			for(Ciudad std : data) {
 				System.out.println(std);
 			}
 
@@ -179,6 +176,7 @@ public class MenuAplicacion {
 	}
 
 
+
 	private void SerializarDatos() {
 		// Guardar JSON
 
@@ -186,6 +184,7 @@ public class MenuAplicacion {
 			try {
 				PrintWriter pw = new PrintWriter("ubicaciones.json");
 				pw.write(jsonStringaux);
+
 				pw.flush();
 				pw.close();
 
@@ -283,8 +282,6 @@ public class MenuAplicacion {
 
 	private void CidudadNombre() throws ParserConfigurationException, SAXException {
 
-		List<Coord> coordList = new ArrayList<Coord>();
-
 
 		String nameCityString;
 
@@ -314,7 +311,7 @@ public class MenuAplicacion {
 				Node nodo = nList.item(i);
 				if (nodo.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nodo;
-					System.out.println("Ciudad: " + eElement.getAttribute("name"));
+					//System.out.println("Ciudad: " + eElement.getAttribute("name"));
 					name1 = eElement.getAttribute("name");
 				}
 			}
@@ -323,7 +320,7 @@ public class MenuAplicacion {
 				Node nodo2 = nList2.item(i);
 				if (nodo2.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement2 = (Element) nodo2;
-					System.out.println("temperature: " + eElement2.getAttribute("value"));
+					//System.out.println("temperature: " + eElement2.getAttribute("value"));
 					temp1 = Float.parseFloat(eElement2.getAttribute("value"));
 				}
 			}
@@ -332,19 +329,19 @@ public class MenuAplicacion {
 				Node nodo3 = nList3.item(i);
 				if (nodo3.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement3 = (Element) nodo3;
-					System.out.println("humidity : " + eElement3.getAttribute("value") + eElement3.getAttribute(("unit")));
+					//System.out.println("humidity : " + eElement3.getAttribute("value") + eElement3.getAttribute(("unit")));
 					humidity1 = Float.parseFloat(eElement3.getAttribute("value"));
 
 				}
 			}
-			coordList.add(new Coord(name1, temp1, humidity1));
+			ciudadList.add(new Ciudad(name1, temp1, humidity1));
 			SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm");
 
 			ArrayList<String> myList = new ArrayList<String>();
-			myList.add(coordList.toString());
+			myList.add(ciudadList.toString());
 
 			ObjectWriter ow = new ObjectMapper().setDateFormat(df).writer().withDefaultPrettyPrinter();
-			String jsonXml = ow.writeValueAsString(coordList);
+			String jsonXml = ow.writeValueAsString(ciudadList);
 
 
 			System.out.println(jsonXml);
@@ -359,7 +356,7 @@ public class MenuAplicacion {
 	}
 
 
-		private void CiudadPorCoordenadas()  {
+		private List<Ciudad> CiudadPorCoordenadas()  {
 
 		float lat;
 		float lon;
@@ -369,14 +366,11 @@ public class MenuAplicacion {
 			System.out.print("Enter an lat: ");
 			lat = sc.nextFloat();
 
-
 			System.out.print("Enter an log: ");
 			lon = sc.nextFloat();
 
-
 			//URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat=38.3452&lon=-0.4815&appid=c493f3a45248ed9d8cb1fe7997858cff");
 			URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat="+ lat +"&lon="+ lon + "&appid=c493f3a45248ed9d8cb1fe7997858cff");
-
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
@@ -406,16 +400,16 @@ public class MenuAplicacion {
 				float temp = (float) main.getDouble("temp");
 				float humidity = (float) main.getDouble("humidity");
 
-
-				System.out.println(jsonString);
+				//System.out.println(jsonString);
 				System.out.println("---------------------------");
 
-				List<Coord> coordList = new ArrayList<>();
+				//List<Ciudad> ciudadList = new ArrayList<>();
 
-				coordList.add(new Coord(name, temp, humidity));
+				coordenadasLista.add(new Ciudad(name, temp, humidity));
+
 
 				Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").setPrettyPrinting().create();
-				String json = gson.toJson(coordList);
+				String json = gson.toJson(coordenadasLista);
 
 				System.out.println(json);
 
@@ -426,6 +420,7 @@ public class MenuAplicacion {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return coordenadasLista;
 	}
 
 
