@@ -170,9 +170,7 @@ public class MenuAplicacion {
 
 			for(Coord std : data) {
 				System.out.println(std);
-
 			}
-
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -190,9 +188,9 @@ public class MenuAplicacion {
 				pw.write(jsonStringaux);
 				pw.flush();
 				pw.close();
+
+				pw.println(jsonStringaux);
 				System.out.println("Archivo creado");
-
-
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -220,8 +218,6 @@ public class MenuAplicacion {
 		} else {
 			System.out.println("No hay datos");
 		}
-
-
 
 	}
 
@@ -275,8 +271,6 @@ public class MenuAplicacion {
 				Gson  gson = new GsonBuilder().setPrettyPrinting().create();
 				String jsonString = gson.toJson(jsonObject);
 				System.out.println(jsonString);
-
-
 
 			}
 
